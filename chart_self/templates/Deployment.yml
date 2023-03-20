@@ -25,6 +25,8 @@ spec:
             - name: {{ include "misskey.fullname" . }}-configuration
               mountPath: /misskey/.config
               readOnly: true
+            - name: misskey-files-pvc
+              mountPath: /misskey/files
           ports:
             - containerPort: 3000
         - name: postgres
@@ -38,6 +40,9 @@ spec:
               value: "misskey"
           ports:
             - containerPort: 5432
+          volumeMounts:
+            - name: misskey-postgresql-pvc
+              mountPath: /var/lib/postgresql/data
         - name: redis
           image: redis:alpine
           ports:
@@ -46,3 +51,10 @@ spec:
         - name: {{ include "misskey.fullname" . }}-configuration
           configMap:
             name: {{ include "misskey.fullname" . }}-configuration
+        - name: misskey-postgresql-pvc
+          persistentVolumeClaim:
+            claimName: misskey-postgresql
+        - name: misskey-files-pvc
+          persistentVolumeClaim:
+            claimName: misskey-files
+          
