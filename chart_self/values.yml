@@ -1,0 +1,8 @@
+namespace: misskey
+url: https://hirasakain.ninja/
+imageRepo: docker.io/kingyosun/misskey
+imageTag: 0.0.0
+environment: production
+db_user: admin
+db_pass: NeedOverride
+clouddflared_token: needoverride
