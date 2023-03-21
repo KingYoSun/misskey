@@ -18,7 +18,8 @@ spec:
           image: "{{ .Values.aiRepo }}:{{ .Values.aiTag }}"
           volumeMounts:
             - name: ai-config
-              mountPath: /ai/config.json
+              mountPath: /ai
+              subPath: config.json
             - name: ai-data-pvc
               mountPath: /ai/data
       volumes:
