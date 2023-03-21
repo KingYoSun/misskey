@@ -22,7 +22,7 @@ metadata:
 data:
   config.json: |
     {
-      "host": "{{ .Values.url }}",
+      "host": "{{ .Values.aiHost }}",
       "i": "{{ .Values.aiToken }}",
       "master": "{{ .Values.aiMaster }}",
       "notingEnabled": true,
