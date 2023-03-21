@@ -13,3 +13,26 @@ data:
       db: misskey
       user: {{ .Values.db_user }}
       pass: {{ .Values.db_pass }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-config
+  namespace: {{ .Values.namespace }}
+data:
+  config.json: |-
+  {
+    "host": "{{ .Values.url }}",
+    "i": "{{ .Values.aiToken }}",
+    "master": "{{ .Values.aiMaster }}",
+    "notingEnabled": true,
+    "keywordEnabled": false,
+    "chartEnabled": false,
+    "reversiEnabled": true,
+    "serverMonitoring": true,
+    "mecab": "/usr/bin/mecab",
+    "mecabDic": "/usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd/",
+    "memoryDir": "data",
+    "githubAccessToken": "{{ .Values.aiGithubToken }}",
+    "githubProjectId": "{{ .Values.aiGithubProjectId }}"
+  }

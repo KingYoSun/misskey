@@ -51,3 +51,30 @@ spec:
   accessModes:
   - ReadWriteMany
   storageClassName: misskey-files
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ai-data
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: ai-data
+  hostPath:
+    path: /data/ai-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-data
+  namespace: misskey
+spec:
+  resources:
+    requests:
+      storage: 5Gi
+  accessModes:
+  - ReadWriteMany
+  storageClassName: ai-data

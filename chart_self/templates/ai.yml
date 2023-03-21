@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aibot
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: aibot
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: aibot
+    spec:
+      containers:
+        - name: aibot
+          image: "{{ .Values.aiRepo }}:{{ .Values.aiTag }}"
+          volumeMounts:
+            - name: ai-config
+              mountPath: /ai/config.json
+            - name: ai-data-pvc
+              mountPath: /ai/data
+      volumes:
+        - name: ai-config
+          configMap:
+            name: ai-config
+        - name: ai-data-pvc
+          persistentVolumeClaim:
+            claimName: ai-data
+

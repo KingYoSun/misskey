@@ -6,3 +6,9 @@ environment: production
 db_user: admin
 db_pass: NeedOverride
 clouddflared_token: needoverride
+aiRepo: docker.io/kingyosun/ai
+aiTag: latest
+aiToken: NeedOverride
+aiMaster: kingyosun
+aiGithubToken: NeedOverride
+aiGithubProjectId: NeedOverride
