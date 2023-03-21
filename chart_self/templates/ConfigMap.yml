@@ -20,7 +20,7 @@ metadata:
   name: ai-config
   namespace: {{ .Values.namespace }}
 data:
-  config.json: |-
+  config.json: |
   {
     "host": "{{ .Values.url }}",
     "i": "{{ .Values.aiToken }}",
