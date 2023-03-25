@@ -51,7 +51,9 @@ spec:
       initContainers:
         - name: init-postgres
           image: postgres:14-alpine
-          command: ['sh', '-c', 'su - postgres ; logname ; pg_ctl stop -D "/var/lib/postgresql/data"']
+          command: ['sh', '-c', 'pg_ctl stop -D "/var/lib/postgresql/data"']
+          securityContext:
+            runAsUser: 1000
           volumeMounts:
             - name: misskey-postgresql-pvc
               mountPath: /var/lib/postgresql/data
