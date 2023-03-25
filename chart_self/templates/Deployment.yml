@@ -41,6 +41,9 @@ spec:
           ports:
             - containerPort: 5432
           args: ["-c", "log_statement=all", "-c", "log_destination=stderr"]
+          securityContext:
+            runAsUser: 1000
+            fsGroup: 1000
           volumeMounts:
             - name: misskey-postgresql-pvc
               mountPath: /var/lib/postgresql/data
