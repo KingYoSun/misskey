@@ -50,8 +50,8 @@ spec:
             - containerPort: 6379
       initContainers:
         - name: init-postgres
-          image: busybox:1.28
-          command: ['sh', '-c', 'if [ -f /var/lib/postgresql/data/postmaster.pid ]; then rm -rf /var/lib/postgresql/data/postmaster.pid; else exit; fi']
+          image: postgres:14-alpine
+          command: ['sh', '-c', 'pg_ctl stop -D "/var/lib/postgresql/data"']
           volumeMounts:
             - name: misskey-postgresql-pvc
               mountPath: /var/lib/postgresql/data
