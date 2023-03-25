@@ -41,9 +41,6 @@ spec:
           ports:
             - containerPort: 5432
           args: ["-c", "log_statement=all", "-c", "log_destination=stderr"]
-          securityContext:
-            runAsUser: 1000
-            fsGroup: 1000
           volumeMounts:
             - name: misskey-postgresql-pvc
               mountPath: /var/lib/postgresql/data
@@ -54,7 +51,7 @@ spec:
       initContainers:
         - name: init-postgres
           image: postgres:14-alpine
-          command: ['sh', '-c', 'if [ -f /var/lib/postgresql/data/postmaster.pid ]; then pg_ctl stop -m fast -D "/var/lib/postgresql/data"; else pg_resetwal /var/lib/postgresql/data; fi']
+          command: ['sh', '-c', 'if [ -f /var/lib/postgresql/data/postmaster.pid ]; then chmod 777 -R /var/lib/postgresql/data && pg_ctl stop -m fast -D "/var/lib/postgresql/data"; else pg_resetwal /var/lib/postgresql/data; fi']
           securityContext:
             runAsUser: 1000
             fsGroup: 1000
