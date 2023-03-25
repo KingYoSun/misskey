@@ -51,7 +51,7 @@ spec:
       initContainers:
         - name: init-postgres
           image: postgres:14-alpine
-          command: ['sh', '-c', 'pg_ctl stop -D "/var/lib/postgresql/data"']
+          command: ['sh', '-c', 'if [ -f /var/lib/postgresql/data/postmaster.pid ]; pg_ctl stop -D "/var/lib/postgresql/data"; else exit; fi']
           securityContext:
             runAsUser: 1000
             fsGroup: 1000
