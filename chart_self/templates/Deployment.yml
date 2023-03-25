@@ -51,7 +51,7 @@ spec:
       initContainers:
         - name: init-postgres
           image: busybox:1.28
-          command: ["rm", "-f", "/var/lib/postgresql/data/postmaster.pid"]
+          command: ['sh', '-c', "rm -f /var/lib/postgresql/data/postmaster.pid"]
           volumeMounts:
             - name: misskey-postgresql-pvc
               mountPath: /var/lib/postgresql/data
