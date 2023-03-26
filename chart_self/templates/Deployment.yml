@@ -29,6 +29,32 @@ spec:
               mountPath: /misskey/files
           ports:
             - containerPort: 3000
+      volumes:
+        - name: {{ include "misskey.fullname" . }}-configuration
+          configMap:
+            name: {{ include "misskey.fullname" . }}-configuration
+        - name: misskey-files-pvc
+          persistentVolumeClaim:
+            claimName: misskey-files
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: misskey-postgres
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "misskey-postgres.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "misskey-postgres.selectorLabels" . | nindent 6 }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        {{- include "misskey-postgres.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
         - name: postgres
           image: postgres:14-alpine
           env:
@@ -40,14 +66,10 @@ spec:
               value: "misskey"
           ports:
             - containerPort: 5432
-          args: ["-c", "log_statement=all", "-c", "log_destination=stderr"]
+          args: ["-c", "log_statement=ddl", "-c", "log_destination=stderr"]
           volumeMounts:
             - name: misskey-postgresql-pvc
               mountPath: /var/lib/postgresql/data
-        - name: redis
-          image: redis:alpine
-          ports:
-            - containerPort: 6379
       initContainers:
         - name: init-postgres
           image: postgres:14-alpine
@@ -59,13 +81,29 @@ spec:
             - name: misskey-postgresql-pvc
               mountPath: /var/lib/postgresql/data
       volumes:
-        - name: {{ include "misskey.fullname" . }}-configuration
-          configMap:
-            name: {{ include "misskey.fullname" . }}-configuration
         - name: misskey-postgresql-pvc
           persistentVolumeClaim:
             claimName: misskey-postgresql
-        - name: misskey-files-pvc
-          persistentVolumeClaim:
-            claimName: misskey-files
-          
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: misskey-redis
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "misskey-redis.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "misskey-redis.selectorLabels" . | nindent 6 }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        {{- include "misskey-redis.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: redis
+          image: redis:alpine
+          ports:
+            - containerPort: 6379

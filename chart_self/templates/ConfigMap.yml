@@ -8,7 +8,7 @@ data:
     {{ .Files.Get "files/default.yml"|nindent 4 }}
     url: {{ .Values.url }}
     db:
-      host: localhost
+      host: misskey-postgres.misskey.svc.cluster.local
       port: 5432
       db: misskey
       user: {{ .Values.db_user }}

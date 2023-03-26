@@ -43,11 +43,51 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
+Common labels(postgres)
+*/}}
+{{- define "misskey-postgres.labels" -}}
+helm.sh/chart: {{ include "misskey.chart" . }}
+{{ include "misskey-postgres.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Common labels(redis)
+*/}}
+{{- define "misskey-redis.labels" -}}
+helm.sh/chart: {{ include "misskey.chart" . }}
+{{ include "misskey-redis.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
 Selector labels
 */}}
 {{- define "misskey.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "misskey.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Selector labels(postgres)
+*/}}
+{{- define "misskey-postgres.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "misskey.name" . }}-postgres
+app.kubernetes.io/instance: {{ .Release.Name }}-postgres
+{{- end }}
+
+{{/*
+Selector labels(redis)
+*/}}
+{{- define "misskey-redis.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "misskey.name" . }}-redis
+app.kubernetes.io/instance: {{ .Release.Name }}-redis
 {{- end }}
 
 {{/*
