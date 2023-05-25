@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import Redis from 'ioredis';
+import * as Redis from 'ioredis';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import type { NotesRepository, RolesRepository } from '@/models/index.js';
 import { QueryService } from '@/core/QueryService.js';
@@ -65,24 +65,27 @@ export default class extends Endpoint<typeof meta, typeof paramDef> {
 		super(meta, paramDef, async (ps, me) => {
 			const role = await this.rolesRepository.findOneBy({
 				id: ps.roleId,
+				isPublic: true,
 			});
 
 			if (role == null) {
 				throw new ApiError(meta.errors.noSuchRole);
 			}
-
-			const limit = ps.limit + (ps.untilId ? 1 : 0); // untilIdに指定したものも含まれるため+1
+			if (!role.isExplorable) { 
+				return [];
+			}
+			const limit = ps.limit + (ps.untilId ? 1 : 0) + (ps.sinceId ? 1 : 0); // untilIdに指定したものも含まれるため+1
 			const noteIdsRes = await this.redisClient.xrevrange(
 				`roleTimeline:${role.id}`,
-				ps.untilId ? this.idService.parse(ps.untilId).date.getTime() : '+',
-				'-',
+				ps.untilId ? this.idService.parse(ps.untilId).date.getTime() : ps.untilDate ?? '+',
+				ps.sinceId ? this.idService.parse(ps.sinceId).date.getTime() : ps.sinceDate ?? '-',
 				'COUNT', limit);
 
 			if (noteIdsRes.length === 0) {
 				return [];
 			}
 
-			const noteIds = noteIdsRes.map(x => x[1][1]).filter(x => x !== ps.untilId);
+			const noteIds = noteIdsRes.map(x => x[1][1]).filter(x => x !== ps.untilId && x !== ps.sinceId);
 
 			if (noteIds.length === 0) {
 				return [];
@@ -90,6 +93,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> {
 
 			const query = this.notesRepository.createQueryBuilder('note')
 				.where('note.id IN (:...noteIds)', { noteIds: noteIds })
+				.andWhere('(note.visibility = \'public\')')
 				.innerJoinAndSelect('note.user', 'user')
 				.leftJoinAndSelect('note.reply', 'reply')
 				.leftJoinAndSelect('note.renote', 'renote')

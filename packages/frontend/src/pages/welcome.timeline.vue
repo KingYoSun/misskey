@@ -9,10 +9,10 @@
 					<MkA v-if="note.renoteId" class="rp" :to="`/notes/${note.renoteId}`">RN: ...</MkA>
 				</div>
 				<div v-if="note.files.length > 0" :class="$style.richcontent">
-					<MkMediaList :media-list="note.files"/>
+					<MkMediaList :mediaList="note.files"/>
 				</div>
 				<div v-if="note.poll">
-					<MkPoll :note="note" :read-only="true"/>
+					<MkPoll :note="note" :readOnly="true"/>
 				</div>
 			</div>
 			<MkReactionsViewer ref="reactionsViewer" :note="note"/>
@@ -33,7 +33,7 @@ import { $i } from '@/account';
 
 let notes = $ref<Note[]>([]);
 let isScrolling = $ref(false);
-let scrollEl = $ref<HTMLElement>();
+let scrollEl = $shallowRef<HTMLElement>();
 
 os.apiGet('notes/featured').then(_notes => {
 	notes = _notes;
