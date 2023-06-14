@@ -795,6 +795,7 @@ export interface Locale {
     "noBotProtectionWarning": string;
     "configure": string;
     "postToGallery": string;
+    "postToHashtag": string;
     "gallery": string;
     "recentPosts": string;
     "popularPosts": string;
@@ -1060,6 +1061,11 @@ export interface Locale {
     "rolesThatCanBeUsedThisEmojiAsReactionPublicRoleWarn": string;
     "cancelReactionConfirm": string;
     "changeReactionConfirm": string;
+    "later": string;
+    "goToMisskey": string;
+    "additionalEmojiDictionary": string;
+    "installed": string;
+    "branding": string;
     "_initialAccountSetting": {
         "accountCreated": string;
         "letsStartAccountSetup": string;
@@ -1074,6 +1080,7 @@ export interface Locale {
         "haveFun": string;
         "ifYouNeedLearnMore": string;
         "skipAreYouSure": string;
+        "laterAreYouSure": string;
     };
     "_serverRules": {
         "description": string;
