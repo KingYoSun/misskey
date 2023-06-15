@@ -37,7 +37,7 @@ spec:
   persistentVolumeReclaimPolicy: Recycle
   storageClassName: misskey-files
   hostPath:
-    path: /media/kingyosun/storage1/misskey-files
+    path: /media/kingyosun/storage2/misskey-files
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
