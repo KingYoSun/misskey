@@ -37,7 +37,7 @@ spec:
   persistentVolumeReclaimPolicy: Recycle
   storageClassName: misskey-files
   hostPath:
-    path: /media/kingyosun/storage3/misskey-files
+    path: {{ .Values.misskeyFilesPath }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
