@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: syuilo and other misskey contributors
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 <template>
 <div
 	:class="[$style.root, { [$style.paged]: isMainColumn, [$style.naked]: naked, [$style.active]: active, [$style.draghover]: draghover, [$style.dragging]: dragging, [$style.dropready]: dropready }]"
@@ -12,6 +17,7 @@
 		@dragstart="onDragstart"
 		@dragend="onDragend"
 		@contextmenu.prevent.stop="onContextmenu"
+		@wheel="emit('headerWheel', $event)"
 	>
 		<svg viewBox="0 0 256 128" :class="$style.tabShape">
 			<g transform="matrix(6.2431,0,0,6.2431,-677.417,-29.3839)">
@@ -55,6 +61,10 @@ const props = withDefaults(defineProps<{
 	isStacked: false,
 	naked: false,
 });
+
+const emit = defineEmits<{
+	(ev: 'headerWheel', ctx: WheelEvent): void;
+}>();
 
 let body = $shallowRef<HTMLDivElement | null>();
 

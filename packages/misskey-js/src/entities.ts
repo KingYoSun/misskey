@@ -107,6 +107,20 @@ export type MeDetailed = UserDetailed & {
 	[other: string]: any;
 };
 
+export type MeDetailedWithSecret = MeDetailed & {
+	email: string;
+	emailVerified: boolean;
+	securityKeysList: {
+		id: string;
+		name: string;
+		lastUsed: string;
+	}[];
+};
+
+export type MeSignup = MeDetailedWithSecret & {
+	token: string;
+};
+
 export type DriveFile = {
 	id: ID;
 	createdAt: DateString;
@@ -324,12 +338,18 @@ export type DetailedInstanceMetadata = LiteInstanceMetadata & {
 	pinnedPages: string[];
 	pinnedClipId: string | null;
 	cacheRemoteFiles: boolean;
+	cacheRemoteSensitiveFiles: boolean;
 	requireSetup: boolean;
 	proxyAccountName: string | null;
 	features: Record<string, any>;
 };
 
 export type InstanceMetadata = LiteInstanceMetadata | DetailedInstanceMetadata;
+
+export type AdminInstanceMetadata = DetailedInstanceMetadata & {
+	// TODO: There are more fields.
+	blockedHosts: string[];
+};
 
 export type ServerInfo = {
 	machine: string;
@@ -467,7 +487,7 @@ export type Blocking = {
 
 export type Instance = {
 	id: ID;
-	caughtAt: DateString;
+	firstRetrievedAt: DateString;
 	host: string;
 	usersCount: number;
 	notesCount: number;
@@ -481,6 +501,7 @@ export type Instance = {
 	lastCommunicatedAt: DateString;
 	isNotResponding: boolean;
 	isSuspended: boolean;
+	isBlocked: boolean;
 	softwareName: string | null;
 	softwareVersion: string | null;
 	openRegistrations: boolean | null;
@@ -501,6 +522,21 @@ export type Signin = {
 	headers: Record<string, any>;
 	success: boolean;
 };
+
+export type Invite = {
+	id: ID;
+	code: string;
+	expiresAt: DateString | null;
+	createdAt: DateString;
+	createdBy: UserLite | null;
+	usedBy: UserLite | null;
+	usedAt: DateString | null;
+	used: boolean;
+}
+
+export type InviteLimit = {
+	remaining: number;
+}
 
 export type UserSorting =
 	| '+follower'

@@ -1,7 +1,12 @@
+/*
+ * SPDX-FileCopyrightText: syuilo and other misskey contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 import { Inject, Injectable } from '@nestjs/common';
 import { In, Not } from 'typeorm';
 import * as Redis from 'ioredis';
-import Ajv from 'ajv';
+import _Ajv from 'ajv';
 import { ModuleRef } from '@nestjs/core';
 import { DI } from '@/di-symbols.js';
 import type { Config } from '@/config.js';
@@ -11,7 +16,7 @@ import { awaitAll } from '@/misc/prelude/await-all.js';
 import { USER_ACTIVE_THRESHOLD, USER_ONLINE_THRESHOLD } from '@/const.js';
 import type { LocalUser, PartialLocalUser, PartialRemoteUser, RemoteUser, User } from '@/models/entities/User.js';
 import { birthdaySchema, descriptionSchema, localUsernameSchema, locationSchema, nameSchema, passwordSchema } from '@/models/entities/User.js';
-import type { UsersRepository, UserSecurityKeysRepository, FollowingsRepository, FollowRequestsRepository, BlockingsRepository, MutingsRepository, DriveFilesRepository, NoteUnreadsRepository, ChannelFollowingsRepository, UserNotePiningsRepository, UserProfilesRepository, InstancesRepository, AnnouncementReadsRepository, AnnouncementsRepository, PagesRepository, UserProfile, RenoteMutingsRepository, UserMemoRepository } from '@/models/index.js';
+import type { UsersRepository, UserSecurityKeysRepository, FollowingsRepository, FollowRequestsRepository, BlockingsRepository, MutingsRepository, DriveFilesRepository, NoteUnreadsRepository, UserNotePiningsRepository, UserProfilesRepository, AnnouncementReadsRepository, AnnouncementsRepository, UserProfile, RenoteMutingsRepository, UserMemoRepository } from '@/models/index.js';
 import { bindThis } from '@/decorators.js';
 import { RoleService } from '@/core/RoleService.js';
 import { ApPersonService } from '@/core/activitypub/models/ApPersonService.js';
@@ -31,6 +36,7 @@ type IsMeAndIsUserDetailed<ExpectsMe extends boolean | null, Detailed extends bo
 		Packed<'UserDetailed'> :
 	Packed<'UserLite'>;
 
+const Ajv = _Ajv.default;
 const ajv = new Ajv();
 
 function isLocalUser(user: User): user is LocalUser;
@@ -92,17 +98,11 @@ export class UserEntityService implements OnModuleInit {
 		@Inject(DI.noteUnreadsRepository)
 		private noteUnreadsRepository: NoteUnreadsRepository,
 
-		@Inject(DI.channelFollowingsRepository)
-		private channelFollowingsRepository: ChannelFollowingsRepository,
-
 		@Inject(DI.userNotePiningsRepository)
 		private userNotePiningsRepository: UserNotePiningsRepository,
 
 		@Inject(DI.userProfilesRepository)
 		private userProfilesRepository: UserProfilesRepository,
-
-		@Inject(DI.instancesRepository)
-		private instancesRepository: InstancesRepository,
 
 		@Inject(DI.announcementReadsRepository)
 		private announcementReadsRepository: AnnouncementReadsRepository,
@@ -110,9 +110,6 @@ export class UserEntityService implements OnModuleInit {
 		@Inject(DI.announcementsRepository)
 		private announcementsRepository: AnnouncementsRepository,
 
-		@Inject(DI.pagesRepository)
-		private pagesRepository: PagesRepository,
-		
 		@Inject(DI.userMemosRepository)
 		private userMemosRepository: UserMemoRepository,
 
@@ -229,12 +226,14 @@ export class UserEntityService implements OnModuleInit {
 		/*
 		const myAntennas = (await this.antennaService.getAntennas()).filter(a => a.userId === userId);
 
-		const unread = myAntennas.length > 0 ? await this.antennaNotesRepository.findOneBy({
-			antennaId: In(myAntennas.map(x => x.id)),
-			read: false,
-		}) : null;
+		const isUnread = (myAntennas.length > 0 ? await this.antennaNotesRepository.exist({
+			where: {
+				antennaId: In(myAntennas.map(x => x.id)),
+				read: false,
+			},
+		}) : false);
 
-		return unread != null;
+		return isUnread;
 		*/
 		return false; // TODO
 	}

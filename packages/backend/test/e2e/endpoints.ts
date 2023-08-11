@@ -1,20 +1,26 @@
+/*
+ * SPDX-FileCopyrightText: syuilo and other misskey contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 process.env.NODE_ENV = 'test';
 
 import * as assert from 'assert';
 // node-fetch only supports it's own Blob yet
 // https://github.com/node-fetch/node-fetch/pull/1664
 import { Blob } from 'node-fetch';
+import { User } from '@/models/index.js';
 import { startServer, signup, post, api, uploadFile, simpleGet, initTestDb } from '../utils.js';
 import type { INestApplicationContext } from '@nestjs/common';
-import { User } from '@/models/index.js';
+import type * as misskey from 'misskey-js';
 
 describe('Endpoints', () => {
 	let app: INestApplicationContext;
 
-	let alice: any;
-	let bob: any;
-	let carol: any;
-	let dave: any;
+	let alice: misskey.entities.MeSignup;
+	let bob: misskey.entities.MeSignup;
+	let carol: misskey.entities.MeSignup;
+	let dave: misskey.entities.MeSignup;
 
 	beforeAll(async () => {
 		app = await startServer();

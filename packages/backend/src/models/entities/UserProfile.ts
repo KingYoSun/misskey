@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: syuilo and other misskey contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 import { Entity, Column, Index, OneToOne, JoinColumn, PrimaryColumn } from 'typeorm';
 import { obsoleteNotificationTypes, ffVisibility, notificationTypes } from '@/types.js';
 import { id } from '../id.js';
@@ -207,7 +212,7 @@ export class UserProfile {
 	public mutedInstances: string[];
 
 	@Column('enum', {
-		enum: [ 
+		enum: [
 			...notificationTypes,
 			// マイグレーションで削除が困難なので古いenumは残しておく
 			...obsoleteNotificationTypes,

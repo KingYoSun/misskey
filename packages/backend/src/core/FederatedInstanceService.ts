@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: syuilo and other misskey contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import * as Redis from 'ioredis';
 import type { InstancesRepository } from '@/models/index.js';
@@ -43,19 +48,19 @@ export class FederatedInstanceService implements OnApplicationShutdown {
 	@bindThis
 	public async fetch(host: string): Promise<Instance> {
 		host = this.utilityService.toPuny(host);
-	
+
 		const cached = await this.federatedInstanceCache.get(host);
 		if (cached) return cached;
-	
+
 		const index = await this.instancesRepository.findOneBy({ host });
-	
+
 		if (index == null) {
 			const i = await this.instancesRepository.insert({
 				id: this.idService.genId(),
 				host,
 				firstRetrievedAt: new Date(),
 			}).then(x => this.instancesRepository.findOneByOrFail(x.identifiers[0]));
-	
+
 			this.federatedInstanceCache.set(host, i);
 			return i;
 		} else {
@@ -74,7 +79,7 @@ export class FederatedInstanceService implements OnApplicationShutdown {
 			.then((response) => {
 				return response.raw[0];
 			});
-	
+
 		this.federatedInstanceCache.set(result.host, result);
 	}
 

@@ -1,10 +1,14 @@
+/*
+ * SPDX-FileCopyrightText: syuilo and other misskey contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 import { generateKeyPair } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
 import { DataSource, IsNull } from 'typeorm';
 import { DI } from '@/di-symbols.js';
 import type { UsedUsernamesRepository, UsersRepository } from '@/models/index.js';
-import type { Config } from '@/config.js';
 import { User } from '@/models/entities/User.js';
 import { UserProfile } from '@/models/entities/UserProfile.js';
 import { IdService } from '@/core/IdService.js';
@@ -22,9 +26,6 @@ export class SignupService {
 	constructor(
 		@Inject(DI.db)
 		private db: DataSource,
-
-		@Inject(DI.config)
-		private config: Config,
 
 		@Inject(DI.usersRepository)
 		private usersRepository: UsersRepository,
@@ -50,33 +51,33 @@ export class SignupService {
 	}) {
 		const { username, password, passwordHash, host } = opts;
 		let hash = passwordHash;
-	
+
 		// Validate username
 		if (!this.userEntityService.validateLocalUsername(username)) {
 			throw new Error('INVALID_USERNAME');
 		}
-	
+
 		if (password != null && passwordHash == null) {
 			// Validate password
 			if (!this.userEntityService.validatePassword(password)) {
 				throw new Error('INVALID_PASSWORD');
 			}
-	
+
 			// Generate hash of password
 			const salt = await bcrypt.genSalt(8);
 			hash = await bcrypt.hash(password, salt);
 		}
-	
+
 		// Generate secret
 		const secret = generateUserToken();
-	
+
 		// Check username duplication
-		if (await this.usersRepository.findOneBy({ usernameLower: username.toLowerCase(), host: IsNull() })) {
+		if (await this.usersRepository.exist({ where: { usernameLower: username.toLowerCase(), host: IsNull() } })) {
 			throw new Error('DUPLICATED_USERNAME');
 		}
-	
+
 		// Check deleted username duplication
-		if (await this.usedUsernamesRepository.findOneBy({ username: username.toLowerCase() })) {
+		if (await this.usedUsernamesRepository.exist({ where: { username: username.toLowerCase() } })) {
 			throw new Error('USED_USERNAME');
 		}
 
@@ -92,7 +93,7 @@ export class SignupService {
 
 		const keyPair = await new Promise<string[]>((res, rej) =>
 			generateKeyPair('rsa', {
-				modulusLength: 4096,
+				modulusLength: 2048,
 				publicKeyEncoding: {
 					type: 'spki',
 					format: 'pem',
@@ -106,18 +107,18 @@ export class SignupService {
 			}, (err, publicKey, privateKey) =>
 				err ? rej(err) : res([publicKey, privateKey]),
 			));
-	
+
 		let account!: User;
-	
+
 		// Start transaction
 		await this.db.transaction(async transactionalEntityManager => {
 			const exist = await transactionalEntityManager.findOneBy(User, {
 				usernameLower: username.toLowerCase(),
 				host: IsNull(),
 			});
-	
+
 			if (exist) throw new Error(' the username is already used');
-	
+
 			account = await transactionalEntityManager.save(new User({
 				id: this.idService.genId(),
 				createdAt: new Date(),
@@ -127,27 +128,27 @@ export class SignupService {
 				token: secret,
 				isRoot: isTheFirstUser,
 			}));
-	
+
 			await transactionalEntityManager.save(new UserKeypair({
 				publicKey: keyPair[0],
 				privateKey: keyPair[1],
 				userId: account.id,
 			}));
-	
+
 			await transactionalEntityManager.save(new UserProfile({
 				userId: account.id,
 				autoAcceptFollowed: true,
 				password: hash,
 			}));
-	
+
 			await transactionalEntityManager.save(new UsedUsername({
 				createdAt: new Date(),
 				username: username.toLowerCase(),
 			}));
 		});
-	
+
 		this.usersChart.update(account, true);
-	
+
 		return { account, secret };
 	}
 }
